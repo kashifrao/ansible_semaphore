@@ -1,0 +1,51 @@
+#  == File: semaphore.yml
+#
+# Install & Configure Semaphore
+#
+#  == Copyright
+#     All Rights Reserved
+#
+# --------------------------------------------------------------------------
+# WARNING: This file belongs to the Core framework. Avoid any local changes
+# --------------------------------------------------------------------------
+#
+# This file is Managed by ANSIBLE
+# --------------------------------------------------------------------------
+
+
+    - name: Create the directory
+      command: sudo mkdir -p /usr/src/semaphore
+
+    - name: Change the directory
+      command: cd /usr/src/semaphore
+
+    - name: Wget Semaphore
+      command: wget https://github.com/ansible-semaphore/semaphore/releases/download/v2.5.1/semaphore_2.5.1_linux_386.rpm > /dev/null
+
+    - name: Transfer Semaphore file
+      copy: src=/srv/shared/external-softwares/semaphore/semaphore_2.5.1_linux_386.rpm  dest=/usr/src/semaphore/  mode=0755
+
+    - name: Transfer systemd.service file
+      copy: src=/srv/shared/external-softwares/semaphore/semaphore.service  dest=/etc/systemd/system/  mode=0755
+
+    - name: Transfer config file
+      copy: src=/srv/shared/external-softwares/semaphore/config.json  dest=/usr/src/semaphore/  mode=0755
+
+    - name: RPM
+      command: rpm -Fvh /usr/src/semaphore/semaphore_2.5.1_linux_386.rpm
+
+    - name: Copy Config file
+      template:
+        src: "{{ansible_roles_path}}/files/semaphore/config.json.j2"
+        dest: "/usr/src/semaphore/config.json"
+
+    - name: Execute the bash script
+      command: systemctl daemon-reload
+
+    - name: Execute the bash script
+      command: systemctl enable --now semaphore
+
+    - name: Execute the bash script
+      command: sudo service semaphore restart
+
+      
